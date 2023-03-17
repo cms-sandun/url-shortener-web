@@ -1,8 +1,21 @@
+import { Button, Flex, Heading, Input, Link } from '@chakra-ui/react'
 import Head from 'next/head'
-import Image from 'next/image'
+import { useState } from 'react'
+import { shortenUrl } from '../api/url-shortner'
 import styles from '../styles/Home.module.css'
+import UrlEntiryProps from '../types/url-entity.type'
 
 export default function Home() {
+
+  const [urls, setUrls] = useState<UrlEntiryProps[]>([])
+
+  const onSubmitHandler = async (e: any) => {
+    e.preventDefault()
+    const currentUrl = e.target['inputLongUrl'].value
+    const response = await shortenUrl(currentUrl)
+    setUrls([...urls, response])
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -12,60 +25,36 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+        <Heading className={styles.title}>
+          Welcome to Bit.ly
+        </Heading>
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.tsx</code>
-        </p>
+        <form onSubmit={onSubmitHandler}>
+          <Flex flexDirection={'row'} mt={10}>
+            <Input name='inputLongUrl' size={'lg'} w='600px' type="url" required></Input>
+            <Button size={'lg'} ml={3} type='submit'>Shorten</Button>
+          </Flex>
+        </form>
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h2>Documentation &rarr;</h2>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h2>Learn &rarr;</h2>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
 
-          <a
-            href="https://github.com/vercel/next.js/tree/canary/examples"
-            className={styles.card}
-          >
-            <h2>Examples &rarr;</h2>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.card}
-          >
-            <h2>Deploy &rarr;</h2>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
+        <Flex mt={10} w='100%' alignItems={'center'} flexDirection={'column'}>
+          {urls && urls.map((url, i) => (
+            <Flex key={i} justifyContent='space-between' width={'55%'} p={2} >
+              <Flex>
+                <Link href={url.originalUrl} isExternal>
+                  {url.originalUrl}
+                </Link>
+              </Flex>
+              <Flex>
+                <Link href={`${process.env.NEXT_PUBLIC_API_URL}/${url.shortUrlKey}`} isExternal>
+                  {`${process.env.NEXT_PUBLIC_API_URL}/${url.shortUrlKey}`}
+                </Link>
+                <Button ml={3} size={'xs'}>Copy</Button>
+              </Flex>
+            </Flex>))}
+        </Flex>
       </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <span className={styles.logo}>
-            <Image src="/vercel.svg" alt="Vercel Logo" width={72} height={16} />
-          </span>
-        </a>
-      </footer>
-    </div>
+    </div >
   )
 }
