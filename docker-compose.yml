@@ -35,8 +35,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-    # volumes:
-    #   - ./data:/var/lib/mysql
+    volumes:
+      - ./data:/var/lib/mysql
     networks:
       - my_network
 networks:

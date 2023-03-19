@@ -1,19 +1,23 @@
 import { Alert, AlertIcon, Button, Flex, Heading, Input, Link } from '@chakra-ui/react'
 import Head from 'next/head'
 import { FormEvent, useState } from 'react'
+import { text } from 'stream/consumers'
 import { shortenUrl } from '../api/url-shortner'
 import styles from '../styles/Home.module.css'
 import UrlEntiryProps from '../types/url-entity.type'
+import { useToast } from '@chakra-ui/react'
 
 export default function Home() {
 
   const [urls, setUrls] = useState<UrlEntiryProps[]>([])
   const [error, setError] = useState<string | null>(null)
+  const toast = useToast()
+
 
   const onSubmitHandler = async (e: FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
-      const currentUrl = e.currentTarget.inputLongUrl.value
+      const currentUrl = (e.currentTarget.elements.namedItem('inputLongUrl') as HTMLInputElement).value
       const response = await shortenUrl(currentUrl)
       setUrls([...urls, response as UrlEntiryProps])
       setError(null)
@@ -21,6 +25,28 @@ export default function Home() {
       if (error instanceof Error) {
         setError(error.message)
       }
+    }
+  }
+
+  const onCopyHandler = async (text: string) => {
+    if (!navigator?.clipboard) {
+      console.warn('Clipboard not supported')
+      return false
+    }
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL
+      await navigator.clipboard.writeText(`${baseUrl}/${text}`)
+      toast({
+        title: 'Copied!',
+        description: "Copied to clipboard",
+        status: 'success',
+        duration: 5000,
+        isClosable: true,
+      })
+      return true
+    } catch (error) {
+      console.warn('Copy failed', error)
+      return false
     }
   }
 
@@ -35,10 +61,10 @@ export default function Home() {
       <main className={styles.main}>
 
         <Heading className={styles.title}>
-          Welcome to Bit.ly
+          Welcome to Url Shortner
         </Heading>
 
-        <form onSubmit={onSubmitHandler}>
+        <form onSubmit={onSubmitHandler} data-testid='form'>
 
           {error && <Alert status='error' mt={5}>
             <AlertIcon />
@@ -46,14 +72,14 @@ export default function Home() {
           </Alert>}
 
           <Flex flexDirection={'row'} mt={10}>
-            <Input name='inputLongUrl' size={'lg'} w='600px' type="url" required></Input>
-            <Button size={'lg'} ml={3} type='submit'>Shorten</Button>
+            <Input data-testid='inputLongUrl' name='inputLongUrl' size={'lg'} w='600px' type="url" required></Input>
+            <Button data-testid='submitButton' size={'lg'} ml={3} type='submit' >Shorten</Button>
           </Flex>
         </form>
 
 
 
-        <Flex mt={10} w='100%' alignItems={'center'} flexDirection={'column'}>
+        <Flex mt={10} w='100%' alignItems={'center'} flexDirection={'column'} data-testid='urlHistoryList'>
           {urls && urls.map((url: UrlEntiryProps, i: number) => (
             <Flex key={i} justifyContent='space-between' width={'55%'} p={2} >
               <Flex>
@@ -65,7 +91,7 @@ export default function Home() {
                 <Link href={`${process.env.NEXT_PUBLIC_API_URL}/${url.shortUrlKey}`} isExternal>
                   {`${process.env.NEXT_PUBLIC_API_URL}/${url.shortUrlKey}`}
                 </Link>
-                <Button ml={3} size={'xs'}>Copy</Button>
+                <Button ml={3} size={'xs'} onClick={() => onCopyHandler(`${url.shortUrlKey}`)}>Copy</Button>
               </Flex>
             </Flex>))}
         </Flex>
