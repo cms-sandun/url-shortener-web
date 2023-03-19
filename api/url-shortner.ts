@@ -4,7 +4,7 @@ import { axiosInstance } from "../utils/axios";
 
 export const shortenUrl = async (url: string) => {
   try {
-    const { data } = await axiosInstance.post<UrlEntiryProps>("/url", {
+    const { data } = await axiosInstance.post<UrlEntiryProps>("/", {
       url,
     });
     return data;
