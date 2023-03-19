@@ -1,6 +1,6 @@
-import { Button, Flex, Heading, Input, Link } from '@chakra-ui/react'
+import { Alert, AlertIcon, Button, Flex, Heading, Input, Link } from '@chakra-ui/react'
 import Head from 'next/head'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { shortenUrl } from '../api/url-shortner'
 import styles from '../styles/Home.module.css'
 import UrlEntiryProps from '../types/url-entity.type'
@@ -8,12 +8,20 @@ import UrlEntiryProps from '../types/url-entity.type'
 export default function Home() {
 
   const [urls, setUrls] = useState<UrlEntiryProps[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-  const onSubmitHandler = async (e: any) => {
-    e.preventDefault()
-    const currentUrl = e.target['inputLongUrl'].value
-    const response = await shortenUrl(currentUrl)
-    setUrls([...urls, response])
+  const onSubmitHandler = async (e: FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault()
+      const currentUrl = e.currentTarget.inputLongUrl.value
+      const response = await shortenUrl(currentUrl)
+      setUrls([...urls, response as UrlEntiryProps])
+      setError(null)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message)
+      }
+    }
   }
 
   return (
@@ -25,11 +33,18 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+
         <Heading className={styles.title}>
           Welcome to Bit.ly
         </Heading>
 
         <form onSubmit={onSubmitHandler}>
+
+          {error && <Alert status='error' mt={5}>
+            <AlertIcon />
+            {error}
+          </Alert>}
+
           <Flex flexDirection={'row'} mt={10}>
             <Input name='inputLongUrl' size={'lg'} w='600px' type="url" required></Input>
             <Button size={'lg'} ml={3} type='submit'>Shorten</Button>
@@ -39,7 +54,7 @@ export default function Home() {
 
 
         <Flex mt={10} w='100%' alignItems={'center'} flexDirection={'column'}>
-          {urls && urls.map((url, i) => (
+          {urls && urls.map((url: UrlEntiryProps, i: number) => (
             <Flex key={i} justifyContent='space-between' width={'55%'} p={2} >
               <Flex>
                 <Link href={url.originalUrl} isExternal>

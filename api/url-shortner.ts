@@ -1,6 +1,16 @@
-import axios from "axios";
+import { AxiosError } from "axios";
+import UrlEntiryProps from "../types/url-entity.type";
+import { axiosInstance } from "../utils/axios";
 
 export const shortenUrl = async (url: string) => {
-  const { data } = await axios.post("http://localhost:3000/url", { url });
-  return data;
+  try {
+    const { data } = await axiosInstance.post<UrlEntiryProps>("/url", {
+      url,
+    });
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof AxiosError) {
+      throw new Error(error.response?.data.message);
+    }
+  }
 };
