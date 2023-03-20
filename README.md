@@ -26,6 +26,7 @@ Open [http://localhost:8080](http://localhost:8080) with your browser to see the
 
 ```bash
 cd url-shortener-api
+npm install
 npm run test
 ```
 
@@ -33,6 +34,7 @@ npm run test
 
 ```bash
 cd url-shortener-api
+npm install
 npm run test:e2e
 ```
 
@@ -40,5 +42,6 @@ npm run test:e2e
 
 ```bash
 cd url-shortener-web
+npm install
 npm run test
 ```
