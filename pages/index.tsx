@@ -4,6 +4,7 @@ import { FormEvent, useState } from 'react'
 import { shortenUrl } from '../api/url-shortner'
 import styles from '../styles/Home.module.css'
 import UrlEntiryProps from '../types/url-entity.type'
+import copy from 'copy-to-clipboard';
 
 export default function Home() {
 
@@ -41,25 +42,15 @@ export default function Home() {
   }
 
   const onCopyHandler = async (text: string) => {
-    if (!navigator?.clipboard) {
-      console.warn('Clipboard not supported')
-      return false
-    }
-    try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL
-      await navigator.clipboard.writeText(`${baseUrl}/${text}`)
-      toast({
-        title: 'Copied!',
-        description: "Copied to clipboard",
-        status: 'success',
-        duration: 5000,
-        isClosable: true,
-      })
-      return true
-    } catch (error) {
-      console.warn('Copy failed', error)
-      return false
-    }
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL
+    copy(`${baseUrl}/${text}`)
+    toast({
+      title: 'Copied!',
+      description: "Copied to clipboard",
+      status: 'success',
+      duration: 5000,
+      isClosable: true,
+    })
   }
 
   return (
