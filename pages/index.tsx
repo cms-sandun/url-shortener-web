@@ -60,7 +60,7 @@ export default function Home() {
 
       <main className={styles.main}>
 
-        <Heading className={styles.title}>
+        <Heading className={styles.title} color='white'>
           Welcome to Url Shortner
         </Heading>
 
@@ -79,16 +79,16 @@ export default function Home() {
 
 
 
-        <Flex mt={10} w='100%' alignItems={'center'} flexDirection={'column'} data-testid='urlHistoryList'>
+        <Flex mt={10} w='100%' alignItems={'center'} flexDirection={'column'} data-testid='urlHistoryList' >
           {urls && urls.map((url: UrlEntiryProps, i: number) => (
             <Flex key={i} justifyContent='space-between' width={'55%'} p={2} >
               <Flex>
-                <Link href={url.originalUrl} isExternal>
+                <Link href={url.originalUrl} isExternal color={'white'}>
                   {url.originalUrl}
                 </Link>
               </Flex>
               <Flex>
-                <Link href={`${process.env.NEXT_PUBLIC_API_URL}/${url.shortUrlKey}`} isExternal>
+                <Link href={`${process.env.NEXT_PUBLIC_API_URL}/${url.shortUrlKey}`} isExternal color={'white'}>
                   {`${process.env.NEXT_PUBLIC_API_URL}/${url.shortUrlKey}`}
                 </Link>
                 <Button ml={3} size={'xs'} onClick={() => onCopyHandler(`${url.shortUrlKey}`)}>Copy</Button>
