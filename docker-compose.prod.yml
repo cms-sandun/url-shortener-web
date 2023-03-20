@@ -9,6 +9,8 @@ services:
     command: sh -c "npm run dev"
     networks:
       - my_network
+    env_file:
+      - .env.production
   api:
     container_name: api_container
     build: ../url-shortener-api/
@@ -21,6 +23,8 @@ services:
         condition: service_healthy
     networks:
       - my_network
+    env_file:
+      - ../url-shortener-api/.env.prod
   db:
     container_name: database_container
     image: mysql

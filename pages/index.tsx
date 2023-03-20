@@ -1,11 +1,9 @@
-import { Alert, AlertIcon, Button, Flex, Heading, Input, Link } from '@chakra-ui/react'
+import { Alert, AlertIcon, Button, Flex, Heading, Input, Link, useToast } from '@chakra-ui/react'
 import Head from 'next/head'
 import { FormEvent, useState } from 'react'
-import { text } from 'stream/consumers'
 import { shortenUrl } from '../api/url-shortner'
 import styles from '../styles/Home.module.css'
 import UrlEntiryProps from '../types/url-entity.type'
-import { useToast } from '@chakra-ui/react'
 
 export default function Home() {
 
@@ -13,11 +11,25 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const toast = useToast()
 
+  const isValidHttpUrl = (url: string) => {
+    let currentUrl;
+    try {
+      currentUrl = new URL(url);
+    } catch (_) {
+      return false;
+    }
+    return currentUrl.protocol === "http:" || currentUrl.protocol === "https:";
+  }
 
   const onSubmitHandler = async (e: FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault()
       const currentUrl = (e.currentTarget.elements.namedItem('inputLongUrl') as HTMLInputElement).value
+      if (!isValidHttpUrl(currentUrl)) {
+        setError("Invalid URL provided. Please follow this format. http(s)://www.example.com")
+        return
+      }
+
       const response = await shortenUrl(currentUrl)
       setUrls([...urls, response as UrlEntiryProps])
       setError(null)
@@ -66,14 +78,14 @@ export default function Home() {
 
         <form onSubmit={onSubmitHandler} data-testid='form'>
 
-          {error && <Alert status='error' mt={5}>
+          {error && <Alert data-testid='errorAlert' status='error' mt={5}>
             <AlertIcon />
             {error}
           </Alert>}
 
           <Flex flexDirection={'row'} mt={10}>
-            <Input data-testid='inputLongUrl' name='inputLongUrl' size={'lg'} w='600px' type="url" required></Input>
-            <Button data-testid='submitButton' size={'lg'} ml={3} type='submit' >Shorten</Button>
+            <Input color={'white'} data-testid='inputLongUrl' name='inputLongUrl' size={'lg'} w='600px' type="url" required placeholder='Example : http(s)://www.example.com'></Input>
+            <Button borderColor={'white'} data-testid='submitButton' size={'lg'} ml={3} type='submit' >Shorten</Button>
           </Flex>
         </form>
 

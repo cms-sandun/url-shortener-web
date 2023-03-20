@@ -15,7 +15,8 @@ Web : git clone https://github.com/cms-sandun/url-shortener-web.git
 
 ```bash
 cd url-shortener-web
-docker-compose up
+docker-compose up -d
+(if you are using latest docker version : docker compose up -d)
 ```
 
 Open [http://localhost:8080](http://localhost:8080) with your browser to see the app.<br /><br />

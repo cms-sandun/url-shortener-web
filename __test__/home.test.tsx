@@ -52,6 +52,23 @@ describe('Home component', () => {
         fireEvent.change(input, { target: { value: 'invalid url' } })
         fireEvent.submit(form)
 
-        expect(await screen.findByText(error.message)).toBeInTheDocument()
+        expect(shortenUrl).not.toHaveBeenCalled()
+    })
+
+    it('should show error message for incorrect url', async () => {
+        const form = screen.getByTestId('form')
+        const input = screen.getByTestId('inputLongUrl')
+
+        const error = new Error('Failed to shorten URL')
+        shortenUrl.mockRejectedValue(error)
+
+        fireEvent.change(input, { target: { value: 'htt://www.google.lk' } })
+        fireEvent.submit(form)
+
+        expect(screen.getByTestId('errorAlert')).toBeVisible()
+        expect(screen.getByTestId('errorAlert')).toHaveTextContent('Invalid URL provided. Please follow this format. http(s)://www.example.com')
+        expect(shortenUrl).not.toHaveBeenCalled()
     })
 })
+
+
